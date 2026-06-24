@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Caixa</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #080b12;
+  --s1: #0e1320;
+  --s2: #141a2e;
+  --s3: #1c2440;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --accent: #5b8dee;
+  --accent-glow: rgba(91,141,238,0.25);
+  --green: #34d399;
+  --green-bg: rgba(52,211,153,0.1);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.1);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,0.1);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167,139,250,0.1);
+  --t1: #f0f4ff;
+  --t2: #8a95b0;
+  --t3: #4a5270;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+  --nav-h: 72px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── LIGHT MODE ── */
+body.light {
+  --bg: #f0f2f8;
+  --s1: #ffffff;
+  --s2: #e8ecf5;
+  --s3: #d8dff0;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.12);
+  --t1: #0e1320;
+  --t2: #4a5270;
+  --t3: #8a95b0;
+  --accent-glow: rgba(91,141,238,0.15);
+  --green-bg: rgba(22,163,74,0.1);
+  --red-bg: rgba(220,38,38,0.1);
+  --amber-bg: rgba(217,119,6,0.1);
+  --purple-bg: rgba(109,40,217,0.1);
+  --green: #16a34a;
+  --red: #dc2626;
+  --amber: #d97706;
+  --purple: #7c3aed;
+}
+body.light .hero-card {
+  background: linear-gradient(135deg, #dde4f8 0%, #c8d4f0 60%, #bcc8e8 100%);
+  border-color: rgba(91,141,238,0.25);
+}
+body.light .hero-card::before { background: radial-gradient(circle, rgba(91,141,238,0.12) 0%, transparent 70%); }
+body.light .topbar { background: var(--bg); }
+body.light .bottom-nav { background: rgba(240,242,248,0.95); }
+body.light .form-field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a95b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); }
+body.light .form-field select option { background: #e8ecf5; }
+body.light .sheet { background: var(--s1); }
+
+/* ── HIDDEN VALUES ── */
+.values-hidden .hide-val {
+  filter: blur(8px);
+  user-select: none;
+  pointer-events: none;
+  transition: filter 0.2s;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--sans);
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* ── SCREENS ── */
+.app { height: 100%; display: flex; flex-direction: column; }
+.screens { flex: 1; overflow: hidden; position: relative; }
+.screen {
+  position: absolute; inset: 0;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 0 0 calc(var(--nav-h) + var(--safe-bottom) + 16px);
+  opacity: 0; pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  -webkit-overflow-scrolling: touch;
+}
+.screen.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 8px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+.topbar-sub { font-size: 11px; color: var(--t3); font-family: var(--mono); margin-top: 1px; }
+.topbar-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--s2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; transition: all 0.15s;
+}
+.icon-btn:active { transform: scale(0.92); background: var(--s3); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  height: calc(var(--nav-h) + var(--safe-bottom));
+  background: rgba(14,19,32,0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: flex-start;
+  padding-top: 8px;
+  padding-bottom: var(--safe-bottom);
+  position: relative; z-index: 20;
+  flex-shrink: 0;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: pointer; padding: 6px 4px;
+  transition: all 0.18s;
+}
+.nav-icon {
+  width: 42px; height: 28px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all 0.18s;
+}
+.nav-label { font-size: 10px; color: var(--t3); font-weight: 500; transition: color 0.18s; }
+.nav-item.active .nav-icon { background: var(--accent-glow); }
+.nav-item.active .nav-label { color: var(--accent); }
+.nav-item:active { transform: scale(0.9); }
+
+/* ── CARDS ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.card-glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* ── HERO FCL CARD ── */
+.hero-card {
+  margin: 12px 16px 0;
+  padding: 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #1a2550 0%, #0e1630 60%, #0a1020 100%);
+  border: 1px solid rgba(91,141,238,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.hero-card::before {
+  content: '';
+  position: absolute; top: -60px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(91,141,238,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-label { font-size: 11px; font-weight: 600; color: var(--t2); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.hero-value { font-size: 38px; font-weight: 700; font-family: var(--mono); letter-spacing: -0.03em; line-height: 1; }
+.hero-value.pos { color: var(--green); }
+.hero-value.neg { color: var(--red); }
+.hero-meta { display: flex; gap: 16px; margin-top: 16px; }
+.hero-meta-item { }
+.hero-meta-label { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.06em; }
+.hero-meta-value { font-size: 13px; font-weight: 600; font-family: var(--mono); margin-top: 2px; }
+
+/* ── MINI SPARKLINE ── */
+.sparkline-wrap { margin-top: 18px; height: 50px; }
+.sparkline-wrap canvas { width: 100% !important; height: 100% !important; }
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 16px 0; }
+.kpi-card {
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px;
+}
+.kpi-card-icon { font-size: 20px; margin-bottom: 8px; }
+.kpi-card-label { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
+.kpi-card-value { font-size: 18px; font-weight: 700; font-family: var(--mono); margin-top: 4px; line-height: 1.1; }
+.kpi-card-sub { font-size: 10px; color: var(--t3); margin-top: 3px; }
+.kpi-card.accent-green { border-color: rgba(52,211,153,0.2); background: linear-gradient(135deg, rgba(52,211,153,0.05), var(--s1)); }
+.kpi-card.accent-red { border-color: rgba(248,113,113,0.2); background: linear-gradient(135deg, rgba(248,113,113,0.05), var(--s1)); }
+.kpi-card.accent-amber { border-color: rgba(251,191,36,0.2); background: linear-gradient(135deg, rgba(251,191,36,0.05), var(--s1)); }
+.kpi-card.accent-purple { border-color: rgba(167,139,250,0.2); background: linear(135deg, rgba(167,139,250,0.05), var(--s1)); }
+
+/* ── SECTION LABEL ── */
+.sec-label {
+  font-size: 11px; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 16px 20px 8px;
+}
+
+/* ── ALERT ITEMS ── */
+.alert-list { margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.alert-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px; border-radius: 14px;
+  font-size: 13px; line-height: 1.4; color: var(--t2);
+}
+.alert-item.red { background: var(--red-bg); border: 1px solid rgba(248,113,113,0.15); }
+.alert-item.green { background: var(--green-bg); border: 1px solid rgba(52,211,153,0.15); }
+.alert-item.amber { background: var(--amber-bg); border: 1px solid rgba(251,191,36,0.15); }
+.alert-item.blue { background: rgba(91,141,238,0.08); border: 1px solid rgba(91,141,238,0.15); }
+.alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.red .alert-dot { background: var(--red); }
+.green .alert-dot { background: var(--green); }
+.amber .alert-dot { background: var(--amber); }
+.blue .alert-dot { background: var(--accent); }
+
+/* ── ITEM CARDS (list items) ── */
+.item-list { margin: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+.item-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.item-card:active { transform: scale(0.98); background: var(--s2); }
+.item-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.item-icon.green { background: var(--green-bg); }
+.item-icon.red { background: var(--red-bg); }
+.item-icon.amber { background: var(--amber-bg); }
+.item-icon.blue { background: rgba(91,141,238,0.1); }
+.item-body { flex: 1; min-width: 0; }
+.item-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-meta { font-size: 11px; color: var(--t3); margin-top: 2px; }
+.item-value { font-family: var(--mono); font-size: 14px; font-weight: 600; flex-shrink: 0; }
+.item-del {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: transparent; border: none; color: var(--t3);
+  font-size: 16px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.item-del:active { background: var(--red-bg); color: var(--red); }
+
+/* ── TAG PILL ── */
+.pill {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.pill-green { background: var(--green-bg); color: var(--green); }
+.pill-red { background: var(--red-bg); color: var(--red); }
+.pill-amber { background: var(--amber-bg); color: var(--amber); }
+.pill-blue { background: rgba(91,141,238,0.15); color: var(--accent); }
+.pill-purple { background: var(--purple-bg); color: var(--purple); }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px); right: 20px;
+  width: 54px; height: 54px; border-radius: 17px;
+  background: var(--accent);
+  box-shadow: 0 4px 20px rgba(91,141,238,0.4);
+  border: none; color: #fff; font-size: 26px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  z-index: 15; transition: all 0.2s;
+}
+.fab:active { transform: scale(0.9); box-shadow: 0 2px 10px rgba(91,141,238,0.3); }
+
+/* ── BOTTOM SHEET ── */
+.sheet-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 50; opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+  backdrop-filter: blur(4px);
+}
+.sheet-overlay.open { opacity: 1; pointer-events: all; }
+.sheet {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--s1);
+  border-radius: 24px 24px 0 0;
+  border: 1px solid var(--border2);
+  border-bottom: none;
+  padding: 0 20px 32px;
+  padding-bottom: calc(32px + var(--safe-bottom));
+  z-index: 51;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.sheet.open { transform: translateY(0); }
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--border2); margin: 14px auto 20px;
+}
+.sheet-title { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
+
+/* ── FORM ── */
+.form-field { margin-bottom: 14px; }
+.form-field label { display: block; font-size: 11px; font-weight: 600; color: var(--t3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; }
+.form-field input, .form-field select {
+  width: 100%;
+  background: var(--s2); border: 1.5px solid var(--border2);
+  border-radius: 12px; padding: 13px 14px;
+  color: var(--t1); font-family: var(--sans); font-size: 15px;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.form-field input:focus, .form-field select:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(91,141,238,0.15);
+}
+.form-field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5270' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.form-field select option { background: #1c2440; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-submit {
+  width: 100%; padding: 16px; border-radius: 14px;
+  background: var(--accent); border: none;
+  color: #fff; font-size: 16px; font-weight: 700;
+  cursor: pointer; font-family: var(--sans);
+  margin-top: 6px;
+  transition: all 0.15s;
+}
+.btn-submit:active { transform: scale(0.97); opacity: 0.9; }
+
+/* ── SEGMENT CONTROL ── */
+.segment { display: flex; background: var(--s2); border-radius: 12px; padding: 3px; margin-bottom: 16px; }
+.seg-btn {
+  flex: 1; padding: 8px; border-radius: 10px; border: none;
+  background: transparent; color: var(--t3); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans); transition: all 0.15s;
+}
+.seg-btn.active { background: var(--s3); color: var(--t1); }
+
+/* ── PROJEÇÃO ── */
+.proj-month-card {
+  margin: 0 16px 10px; border-radius: 16px;
+  background: var(--s1); border: 1px solid var(--border);
+  overflow: hidden;
+}
+.proj-month-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; cursor: pointer;
+}
+.proj-month-label { font-size: 14px; font-weight: 700; }
+.proj-month-fcl { font-family: var(--mono); font-size: 15px; font-weight: 700; }
+.proj-month-bar {
+  height: 3px; margin: 0 16px 0;
+  background: var(--s3); border-radius: 2px; overflow: hidden;
+}
+.proj-month-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.proj-month-detail {
+  padding: 0 16px 14px;
+  display: none;
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+.proj-month-detail.open { display: block; }
+.proj-detail-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--t2);
+}
+.proj-detail-row:last-child { border-bottom: none; }
+.proj-detail-row .val { font-family: var(--mono); font-weight: 600; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 48px 20px; color: var(--t3); text-align: center;
+}
+.empty-state .e-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.empty-state .e-title { font-size: 15px; font-weight: 600; color: var(--t2); margin-bottom: 6px; }
+.empty-state .e-sub { font-size: 13px; }
+
+/* ── PROGRESS RING ── */
+.ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.ring-label { position: absolute; text-align: center; }
+.ring-label .rl-val { font-size: 11px; font-weight: 700; font-family: var(--mono); }
+.ring-label .rl-sub { font-size: 8px; color: var(--t3); }
+
+/* ── SALDO ACUMULADO ── */
+.acum-bar {
+  height: 6px; background: var(--s3); border-radius: 3px;
+  margin-top: 8px; overflow: hidden;
+}
+.acum-bar-fill { height: 100%; border-radius: 3px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ── DESKTOP UPGRADE ── */
+@media (min-width: 600px) {
+  .screens { max-width: 430px; margin: 0 auto; }
+  .bottom-nav { max-width: 430px; margin: 0 auto; }
+  .fab { right: calc(50% - 215px + 20px); }
+  .sheet { max-width: 430px; left: 50%; transform: translateX(-50%) translateY(100%); border-radius: 24px 24px 0 0; }
+  .sheet.open { transform: translateX(-50%) translateY(0); }
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 80px);
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--s3); border: 1px solid var(--border2);
+  color: var(--t1); padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; z-index: 100;
+  opacity: 0; transition: all 0.25s; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── TYPE TOGGLE ── */
+.type-toggle { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.type-chip {
+  padding: 7px 14px; border-radius: 20px;
+  border: 1.5px solid var(--border2);
+  background: transparent; color: var(--t2);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s;
+}
+.type-chip.active { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="screens">
+
+    <!-- ══ SCREEN: DASHBOARD ══ -->
+    <div class="screen active" id="screen-dash">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">Caixa</div>
+          <div class="topbar-sub" id="dash-period">Jun 2026</div>
+        </div>
+        <div class="topbar-actions">
+          <div class="icon-btn" id="btn-hide" onclick="toggleHide()" title="Ocultar valores">👁</div>
+          <div class="icon-btn" id="btn-theme" onclick="toggleTheme()" title="Tema claro/escuro">🌙</div>
+          <div class="icon-btn" onclick="exportCSV()" title="Exportar CSV">⬇</div>
+          <div class="icon-btn" onclick="confirmClear()">⚙</div>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-label">Fluxo de Caixa Livre — Mês Atual</div>
+        <div class="hero-value hide-val" id="dash-fcl">R$ —</div>
+        <div class="sparkline-wrap hide-val"><canvas id="spark"></canvas></div>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <div class="hero-meta-label">Receitas</div>
+            <div class="hero-meta-value hide-val" id="dash-rec" style="color:var(--green)">—</div>
+          </div>
+          <div class="hero-meta-item">
+            <div class="hero-meta-label">Saídas</div>
+            <div class="hero-meta-value hide-val" id="dash-sai" style="color:var(--red)">—</div>
+          </div>
+          <div class="hero-meta-item">
+            <div class="hero-meta-label">FCL 12m</div>
+            <div class="hero-meta-value hide-val" id="dash-12m" style="color:var(--accent)">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card accent-green">
+          <div class="kpi-card-icon">📥</div>
+          <div class="kpi-card-label">Receitas/mês</div>
+          <div class="kpi-card-value hide-val" id="kpi-rec" style="color:var(--green)">—</div>
+          <div class="kpi-card-sub" id="kpi-rec-sub">—</div>
+        </div>
+        <div class="kpi-card accent-red">
+          <div class="kpi-card-icon">💸</div>
+          <div class="kpi-card-label">Saídas/mês</div>
+          <div class="kpi-card-value hide-val" id="kpi-sai" style="color:var(--red)">—</div>
+          <div class="kpi-card-sub" id="kpi-sai-sub">—</div>
+        </div>
+        <div class="kpi-card accent-amber">
+          <div class="kpi-card-icon">📦</div>
+          <div class="kpi-card-label">Em parcelas</div>
+          <div class="kpi-card-value hide-val" id="kpi-parc" style="color:var(--amber)">—</div>
+          <div class="kpi-card-sub" id="kpi-parc-sub">—</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card-icon">📅</div>
+          <div class="kpi-card-label">Meses ⚠</div>
+          <div class="kpi-card-value" id="kpi-neg" style="color:var(--purple)">—</div>
+          <div class="kpi-card-sub">negativos em 24m</div>
+        </div>
+      </div>
+
+      <div class="sec-label">Alertas</div>
+      <div class="alert-list" id="alerts"></div>
+      <div style="height:8px"></div>
+    </div>
+
+    <!-- ══ SCREEN: RECEITAS ══ -->
+    <div class="screen" id="screen-rec">
+      <div class="topbar">
+        <div><div class="topbar-title">Receitas</div><div class="topbar-sub" id="rec-total-sub">Total mensal: —</div></div>
+      </div>
+      <div id="rec-list" style="padding-top:4px"></div>
+    </div>
+
+    <!-- ══ SCREEN: GASTOS ══ -->
+    <div class="screen" id="screen-gas">
+      <div class="topbar">
+        <div><div class="topbar-title">Gastos</div><div class="topbar-sub" id="gas-total-sub">Total mensal: —</div></div>
+      </div>
+      <div class="segment" style="margin:8px 16px 0" id="gas-seg">
+        <button class="seg-btn active" onclick="switchGasSeg('fixos',this)">Fixos</button>
+        <button class="seg-btn" onclick="switchGasSeg('cartoes',this)">Cartões</button>
+        <button class="seg-btn" onclick="switchGasSeg('parcelas',this)">Parcelas</button>
+      </div>
+      <div id="gas-fixos-list" class="gas-seg-panel"></div>
+      <div id="gas-cartoes-list" class="gas-seg-panel" style="display:none"></div>
+      <div id="gas-parcelas-list" class="gas-seg-panel" style="display:none"></div>
+    </div>
+
+    <!-- ══ SCREEN: PROJEÇÃO ══ -->
+    <div class="screen" id="screen-proj">
+      <div class="topbar">
+        <div><div class="topbar-title">Projeção 24m</div><div class="topbar-sub" id="proj-sub">FCL acumulado: —</div></div>
+        <div class="topbar-actions">
+          <div class="icon-btn" onclick="exportCSV()">⬇</div>
+        </div>
+      </div>
+      <div id="proj-list" style="padding-top:8px"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-dash" onclick="goScreen('dash')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Início</div>
+    </div>
+    <div class="nav-item" id="nav-rec" onclick="goScreen('rec')">
+      <div class="nav-icon">💰</div>
+      <div class="nav-label">Receitas</div>
+    </div>
+    <div class="nav-item" id="nav-gas" onclick="goScreen('gas')">
+      <div class="nav-icon">💸</div>
+      <div class="nav-label">Gastos</div>
+    </div>
+    <div class="nav-item" id="nav-proj" onclick="goScreen('proj')">
+      <div class="nav-icon">📈</div>
+      <div class="nav-label">Projeção</div>
+    </div>
+  </nav>
+</div>
+
+<!-- ══ FAB ══ -->
+<button class="fab" id="fab" onclick="openSheet()">＋</button>
+
+<!-- ══ BOTTOM SHEET ══ -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheet-title">Adicionar</div>
+  <div id="sheet-body"></div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let state = { receitas: [], gastos: [], cartoes: [], parcelas: [] };
+let currentScreen = 'dash';
+let currentGasSeg = 'fixos';
+
+function save() { localStorage.setItem('fc_personal_v2', JSON.stringify(state)); }
+function load() {
+  try {
+    const d = localStorage.getItem('fc_personal_v2');
+    if (d) state = JSON.parse(d);
+  } catch(e) {}
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function goScreen(s) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('screen-' + s).classList.add('active');
+  document.getElementById('nav-' + s).classList.add('active');
+  currentScreen = s;
+  renderScreen(s);
+}
+
+function renderScreen(s) {
+  if (s === 'dash') renderDash();
+  else if (s === 'rec') renderRec();
+  else if (s === 'gas') renderGas();
+  else if (s === 'proj') renderProj();
+}
+
+function switchGasSeg(seg, btn) {
+  currentGasSeg = seg;
+  document.querySelectorAll('#gas-seg .seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.gas-seg-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('gas-' + seg + '-list').style.display = '';
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MONTHS_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function fmt(v, signed) {
+  if (v === undefined || isNaN(v)) return 'R$ 0';
+  const abs = Math.abs(v);
+  const str = abs >= 1000
+    ? 'R$ ' + (abs/1000).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + 'k'
+    : 'R$ ' + abs.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+  if (signed) return (v >= 0 ? '+' : '−') + ' ' + str.replace('R$ ','');
+  return str;
+}
+function fmtFull(v) {
+  return 'R$ ' + (Math.abs(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function monthKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function addMonths(d, n) { return new Date(d.getFullYear(), d.getMonth() + n, 1); }
+function parseMonth(s) { const [y,m] = s.split('-'); return new Date(+y, +m-1, 1); }
+function nowMonth() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════════════════
+// PROJECTION ENGINE
+// ═══════════════════════════════════════════
+function buildProjection() {
+  const start = nowMonth();
+  return Array.from({length: 24}, (_, i) => {
+    const month = addMonths(start, i);
+    const key = monthKey(month);
+    const label = MONTHS[month.getMonth()] + ' ' + String(month.getFullYear()).slice(2);
+    const labelFull = MONTHS_FULL[month.getMonth()] + '/' + month.getFullYear();
+    const cm = String(month.getMonth()+1).padStart(2,'0');
+
+    let totalReceitas = 0;
+    state.receitas.forEach(r => {
+      if (r.recorrencia === 'mensal') totalReceitas += +r.valor || 0;
+      else if (r.recorrencia === 'unica' && r.mes === key) totalReceitas += +r.valor || 0;
+      else if (r.recorrencia === 'anual' && r.mes && r.mes.split('-')[1] === cm) totalReceitas += +r.valor || 0;
+    });
+
+    let totalGastos = 0;
+    state.gastos.forEach(g => {
+      if (g.recorrencia === 'mensal') totalGastos += +g.valor || 0;
+      else if (g.recorrencia === 'unica' && g.mes === key) totalGastos += +g.valor || 0;
+      else if (g.recorrencia === 'anual' && g.mes && g.mes.split('-')[1] === cm) totalGastos += +g.valor || 0;
+    });
+
+    let totalCartoes = 0;
+    state.cartoes.forEach(c => totalCartoes += +c.fatura || 0);
+
+    let totalParcelas = 0;
+    state.parcelas.forEach(p => {
+      const ps = parseMonth(p.inicio);
+      const pe = addMonths(ps, +p.qtd);
+      if (month >= ps && month < pe) totalParcelas += +p.valor || 0;
+    });
+
+    const totalSaidas = totalGastos + totalCartoes + totalParcelas;
+    const fcl = totalReceitas - totalSaidas;
+    return { key, label, labelFull, month, totalReceitas, totalGastos, totalCartoes, totalParcelas, totalSaidas, fcl };
+  });
+}
+
+// ═══════════════════════════════════════════
+// SPARKLINE
+// ═══════════════════════════════════════════
+function drawSparkline(values, canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const W = canvas.offsetWidth || 300, H = canvas.offsetHeight || 50;
+  canvas.width = W * devicePixelRatio; canvas.height = H * devicePixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const min = Math.min(...values), max = Math.max(...values);
+  const range = max - min || 1;
+  const pts = values.map((v, i) => ({ x: (i / (values.length - 1)) * W, y: H - ((v - min) / range) * (H - 8) - 4 }));
+
+  // Area
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(91,141,238,0.3)');
+  grad.addColorStop(1, 'rgba(91,141,238,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, H);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length-1].x, H);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.strokeStyle = 'rgba(91,141,238,0.8)'; ctx.lineWidth = 2;
+  ctx.lineJoin = 'round'; ctx.stroke();
+
+  // Zero line
+  if (min < 0 && max > 0) {
+    const zy = H - ((0 - min) / range) * (H - 8) - 4;
+    ctx.beginPath(); ctx.moveTo(0, zy); ctx.lineTo(W, zy);
+    ctx.strokeStyle = 'rgba(248,113,113,0.3)'; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // Dots for negatives
+  pts.forEach((p, i) => {
+    if (values[i] < 0) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(248,113,113,0.8)'; ctx.fill();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+// RENDER DASHBOARD
+// ═══════════════════════════════════════════
+function renderDash() {
+  const proj = buildProjection();
+  const curr = proj[0];
+  const next12 = proj.slice(0,12).reduce((a,m) => a + m.fcl, 0);
+  const negCount = proj.filter(m => m.fcl < 0).length;
+  const totalParc = state.parcelas.reduce((a,p) => a + (+p.valor||0) * (+p.qtd||0), 0);
+
+  const now = nowMonth();
+  document.getElementById('dash-period').textContent =
+    MONTHS_FULL[now.getMonth()] + ' ' + now.getFullYear();
+
+  const fclEl = document.getElementById('dash-fcl');
+  fclEl.textContent = fmtFull(curr.fcl);
+  fclEl.className = 'hero-value hide-val ' + (curr.fcl >= 0 ? 'pos' : 'neg');
+
+  document.getElementById('dash-rec').textContent = fmt(curr.totalReceitas);
+  document.getElementById('dash-sai').textContent = fmt(curr.totalSaidas);
+  document.getElementById('dash-12m').textContent = fmt(next12, true);
+
+  document.getElementById('kpi-rec').textContent = fmt(curr.totalReceitas);
+  document.getElementById('kpi-rec-sub').textContent = state.receitas.length + ' fonte(s)';
+  document.getElementById('kpi-sai').textContent = fmt(curr.totalSaidas);
+  document.getElementById('kpi-sai-sub').textContent =
+    ((curr.totalSaidas / Math.max(curr.totalReceitas, 1)) * 100).toFixed(0) + '% da receita';
+  document.getElementById('kpi-parc').textContent = fmt(totalParc);
+  document.getElementById('kpi-parc-sub').textContent = state.parcelas.length + ' parcela(s)';
+  document.getElementById('kpi-neg').textContent = negCount;
+
+  // Sparkline
+  setTimeout(() => drawSparkline(proj.slice(0,12).map(m => m.fcl), 'spark'), 50);
+
+  // Alerts
+  const alerts = [];
+  if (state.receitas.length + state.gastos.length + state.cartoes.length + state.parcelas.length === 0) {
+    alerts.push({ cls: 'blue', msg: 'Nenhum dado cadastrado. Use o botão + para começar.' });
+  } else {
+    if (curr.fcl < 0) alerts.push({ cls: 'red', msg: `FCL negativo este mês: ${fmtFull(curr.fcl)}. Revise seus gastos.` });
+    const worst = proj.reduce((a,b) => b.fcl < a.fcl ? b : a);
+    if (worst.fcl < 0 && worst !== proj[0]) alerts.push({ cls: 'amber', msg: `Pior mês: ${worst.labelFull} com FCL de ${fmtFull(worst.fcl)}.` });
+    if (curr.totalParcelas > curr.totalReceitas * 0.3) alerts.push({ cls: 'red', msg: `Parcelas comprometem ${((curr.totalParcelas/Math.max(curr.totalReceitas,1))*100).toFixed(0)}% da receita — risco de liquidez.` });
+    if (next12 > 0 && negCount === 0) alerts.push({ cls: 'green', msg: `Fluxo saudável! FCL positivo em todos os 24 meses projetados.` });
+    if (negCount > 0) alerts.push({ cls: 'amber', msg: `${negCount} mese(s) com FCL negativo nos próximos 24 meses.` });
+  }
+
+  document.getElementById('alerts').innerHTML = alerts.map(a =>
+    `<div class="alert-item ${a.cls}"><div class="alert-dot"></div><span>${a.msg}</span></div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════
+// RENDER RECEITAS
+// ═══════════════════════════════════════════
+const catIcons = { salario:'💼', variavel:'📊', negocio:'🏢', outros:'💡', moradia:'🏠', alimentacao:'🍽️', transporte:'🚗', saude:'❤️', educacao:'📚', lazer:'🎬', servicos:'📱', cartao:'💳', financiamento:'🏦', emprestimo:'💰' };
+const catLabels = { salario:'Salário', variavel:'Variável', negocio:'Negócio', outros:'Outros', moradia:'Moradia', alimentacao:'Alimentação', transporte:'Transporte', saude:'Saúde', educacao:'Educação', lazer:'Lazer', servicos:'Serviços', cartao:'Cartão', financiamento:'Financiamento', emprestimo:'Empréstimo' };
+const recLabels = { mensal:'Mensal', unica:'Única', anual:'Anual' };
+
+function renderRec() {
+  const total = state.receitas.filter(r => r.recorrencia === 'mensal').reduce((a,r) => a + (+r.valor||0), 0);
+  document.getElementById('rec-total-sub').textContent = 'Mensal recorrente: ' + fmtFull(total);
+
+  if (!state.receitas.length) {
+    document.getElementById('rec-list').innerHTML = `<div class="empty-state"><div class="e-icon">💰</div><div class="e-title">Nenhuma receita</div><div class="e-sub">Toque em + para adicionar</div></div>`;
+    return;
+  }
+  document.getElementById('rec-list').innerHTML = `<div class="item-list">` +
+    state.receitas.map(r => `
+      <div class="item-card">
+        <div class="item-icon green">${catIcons[r.cat]||'💰'}</div>
+        <div class="item-body">
+          <div class="item-name">${r.desc}</div>
+          <div class="item-meta"><span class="pill pill-green">${catLabels[r.cat]||r.cat}</span> · ${recLabels[r.recorrencia]||r.recorrencia}${r.mes?' · '+r.mes:''}</div>
+        </div>
+        <div class="item-value hide-val" style="color:var(--green)">${fmt(r.valor)}</div>
+        <button class="item-del" onclick="del('receitas','${r.id}','rec')">✕</button>
+      </div>`).join('') + `</div>`;
+}
+
+// ═══════════════════════════════════════════
+// RENDER GASTOS
+// ═══════════════════════════════════════════
+function renderGas() {
+  const proj = buildProjection()[0];
+  const total = proj.totalGastos + proj.totalCartoes + proj.totalParcelas;
+  document.getElementById('gas-total-sub').textContent = 'Total mensal: ' + fmtFull(total);
+
+  // Fixos
+  const gEl = document.getElementById('gas-fixos-list');
+  if (!state.gastos.length) {
+    gEl.innerHTML = `<div class="empty-state"><div class="e-icon">🏠</div><div class="e-title">Nenhum gasto fixo</div><div class="e-sub">Toque em + para adicionar</div></div>`;
+  } else {
+    gEl.innerHTML = `<div class="item-list">` +
+      state.gastos.map(g => `
+        <div class="item-card">
+          <div class="item-icon blue">${catIcons[g.cat]||'📋'}</div>
+          <div class="item-body">
+            <div class="item-name">${g.desc}</div>
+            <div class="item-meta"><span class="pill pill-blue">${catLabels[g.cat]||g.cat}</span> · ${recLabels[g.recorrencia]||g.recorrencia}${g.mes?' · '+g.mes:''}</div>
+          </div>
+          <div class="item-value hide-val" style="color:var(--red)">${fmt(g.valor)}</div>
+          <button class="item-del" onclick="del('gastos','${g.id}','gas')">✕</button>
+        </div>`).join('') + `</div>`;
+  }
+
+  // Cartões
+  const ccEl = document.getElementById('gas-cartoes-list');
+  if (!state.cartoes.length) {
+    ccEl.innerHTML = `<div class="empty-state"><div class="e-icon">💳</div><div class="e-title">Nenhum cartão</div><div class="e-sub">Toque em + para adicionar</div></div>`;
+  } else {
+    ccEl.innerHTML = `<div class="item-list">` +
+      state.cartoes.map(c => `
+        <div class="item-card">
+          <div class="item-icon red">💳</div>
+          <div class="item-body">
+            <div class="item-name">${c.nome}</div>
+            <div class="item-meta">Vence dia ${c.venc||'—'} · Mensal</div>
+          </div>
+          <div class="item-value hide-val" style="color:var(--red)">${fmt(c.fatura)}</div>
+          <button class="item-del" onclick="del('cartoes','${c.id}','gas')">✕</button>
+        </div>`).join('') + `</div>`;
+  }
+
+  // Parcelas
+  const pEl = document.getElementById('gas-parcelas-list');
+  const tipoLabel = { cartao:'Cartão', financiamento:'Financiamento', emprestimo:'Empréstimo', outros:'Outros' };
+  if (!state.parcelas.length) {
+    pEl.innerHTML = `<div class="empty-state"><div class="e-icon">📦</div><div class="e-title">Nenhuma parcela</div><div class="e-sub">Toque em + para adicionar</div></div>`;
+  } else {
+    pEl.innerHTML = `<div class="item-list">` +
+      state.parcelas.map(p => `
+        <div class="item-card">
+          <div class="item-icon amber">📦</div>
+          <div class="item-body">
+            <div class="item-name">${p.desc}</div>
+            <div class="item-meta"><span class="pill pill-amber">${tipoLabel[p.tipo]||p.tipo}</span> · ${p.qtd}x · Início ${p.inicio}</div>
+          </div>
+          <div class="item-value hide-val" style="color:var(--amber)">${fmt(p.valor)}<span style="font-size:10px;color:var(--t3)">/mês</span></div>
+          <button class="item-del" onclick="del('parcelas','${p.id}','gas')">✕</button>
+        </div>`).join('') + `</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════
+// RENDER PROJEÇÃO
+// ═══════════════════════════════════════════
+function renderProj() {
+  const proj = buildProjection();
+  const totalFCL = proj.reduce((a,m) => a+m.fcl, 0);
+  document.getElementById('proj-sub').textContent = 'FCL acumulado: ' + fmtFull(totalFCL);
+
+  const maxAbs = Math.max(...proj.map(m => Math.abs(m.fcl)), 1);
+  let acum = 0;
+
+  document.getElementById('proj-list').innerHTML = proj.map((m, i) => {
+    acum += m.fcl;
+    const pct = Math.abs(m.fcl) / maxAbs * 100;
+    const color = m.fcl >= 0 ? 'var(--green)' : 'var(--red)';
+    return `
+    <div class="proj-month-card">
+      <div class="proj-month-header" onclick="toggleProjMonth(${i})">
+        <div>
+          <div class="proj-month-label">${m.labelFull}</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">Acum: <span class="hide-val" style="color:${acum>=0?'var(--green)':'var(--red)'}">${fmtFull(acum)}</span></div>
+        </div>
+        <div style="text-align:right">
+          <div class="proj-month-fcl hide-val" style="color:${color}">${m.fcl>=0?'+':''}${fmtFull(m.fcl)}</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:2px" id="proj-arrow-${i}">▼ detalhes</div>
+        </div>
+      </div>
+      <div class="proj-month-bar" style="margin-bottom:0">
+        <div class="proj-month-bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <div class="proj-month-detail" id="proj-detail-${i}">
+        <div class="proj-detail-row"><span>📥 Receitas</span><span class="val hide-val" style="color:var(--green)">${fmtFull(m.totalReceitas)}</span></div>
+        <div class="proj-detail-row"><span>🏠 Gastos Fixos</span><span class="val hide-val" style="color:var(--red)">${fmtFull(m.totalGastos)}</span></div>
+        <div class="proj-detail-row"><span>💳 Cartões</span><span class="val hide-val" style="color:var(--red)">${fmtFull(m.totalCartoes)}</span></div>
+        <div class="proj-detail-row"><span>📦 Parcelas</span><span class="val hide-val" style="color:var(--amber)">${fmtFull(m.totalParcelas)}</span></div>
+        <div class="proj-detail-row" style="font-weight:700;color:var(--t1)"><span>FCL</span><span class="val hide-val" style="color:${color}">${m.fcl>=0?'+':''}${fmtFull(m.fcl)}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleProjMonth(i) {
+  const d = document.getElementById('proj-detail-' + i);
+  const a = document.getElementById('proj-arrow-' + i);
+  const open = d.classList.toggle('open');
+  a.textContent = open ? '▲ fechar' : '▼ detalhes';
+}
+
+// ═══════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════
+function del(key, id, screen) {
+  state[key] = state[key].filter(x => x.id !== id);
+  save(); renderScreen(screen); toast('Item removido');
+}
+
+// ═══════════════════════════════════════════
+// BOTTOM SHEET — FORMS
+// ═══════════════════════════════════════════
+let sheetContext = null;
+
+function openSheet() {
+  const screen = currentScreen;
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+
+  if (screen === 'rec') { sheetContext = 'rec'; buildSheetRec(); }
+  else if (screen === 'gas') {
+    if (currentGasSeg === 'fixos') { sheetContext = 'gas'; buildSheetGas(); }
+    else if (currentGasSeg === 'cartoes') { sheetContext = 'cc'; buildSheetCC(); }
+    else { sheetContext = 'parc'; buildSheetParc(); }
+  } else if (screen === 'proj') { sheetContext = 'rec'; buildSheetRec(); }
+  else { sheetContext = 'rec'; buildSheetMain(); }
+}
+
+function closeSheet() {
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+}
+
+function buildSheetMain() {
+  document.getElementById('sheet-title').textContent = 'O que deseja adicionar?';
+  document.getElementById('sheet-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="item-card" onclick="closeSheet();setTimeout(()=>{goScreen('rec');openSheet()},300)" style="cursor:pointer">
+        <div class="item-icon green">💰</div>
+        <div class="item-body"><div class="item-name">Receita</div><div class="item-meta">Salário, freelance, negócio...</div></div>
+        <span style="color:var(--t3)">›</span>
+      </div>
+      <div class="item-card" onclick="closeSheet();setTimeout(()=>{goScreen('gas');switchGasSeg('fixos',document.querySelectorAll('#gas-seg .seg-btn')[0]);openSheet()},300)" style="cursor:pointer">
+        <div class="item-icon blue">🏠</div>
+        <div class="item-body"><div class="item-name">Gasto Fixo</div><div class="item-meta">Aluguel, contas, assinaturas...</div></div>
+        <span style="color:var(--t3)">›</span>
+      </div>
+      <div class="item-card" onclick="closeSheet();setTimeout(()=>{goScreen('gas');switchGasSeg('cartoes',document.querySelectorAll('#gas-seg .seg-btn')[1]);openSheet()},300)" style="cursor:pointer">
+        <div class="item-icon red">💳</div>
+        <div class="item-body"><div class="item-name">Cartão de Crédito</div><div class="item-meta">Fatura mensal estimada</div></div>
+        <span style="color:var(--t3)">›</span>
+      </div>
+      <div class="item-card" onclick="closeSheet();setTimeout(()=>{goScreen('gas');switchGasSeg('parcelas',document.querySelectorAll('#gas-seg .seg-btn')[2]);openSheet()},300)" style="cursor:pointer">
+        <div class="item-icon amber">📦</div>
+        <div class="item-body"><div class="item-name">Parcela</div><div class="item-meta">Compra parcelada, financiamento...</div></div>
+        <span style="color:var(--t3)">›</span>
+      </div>
+    </div>`;
+}
+
+function buildSheetRec() {
+  const nowStr = monthKey(new Date());
+  document.getElementById('sheet-title').textContent = '+ Nova Receita';
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="form-field">
+      <label>Categoria</label>
+      <div class="type-toggle">
+        <button class="type-chip active" data-cat="salario" onclick="selectChip(this,'rec-cat')">💼 Salário</button>
+        <button class="type-chip" data-cat="variavel" onclick="selectChip(this,'rec-cat')">📊 Variável</button>
+        <button class="type-chip" data-cat="negocio" onclick="selectChip(this,'rec-cat')">🏢 Negócio</button>
+        <button class="type-chip" data-cat="outros" onclick="selectChip(this,'rec-cat')">💡 Outros</button>
+      </div>
+      <input type="hidden" id="rec-cat" value="salario">
+    </div>
+    <div class="form-field"><label>Descrição</label><input type="text" id="r-desc" placeholder="Ex: Salário CLT"></div>
+    <div class="form-row-2">
+      <div class="form-field"><label>Valor (R$)</label><input type="number" id="r-valor" placeholder="0,00" inputmode="decimal"></div>
+      <div class="form-field"><label>Recorrência</label>
+        <select id="r-rec" onchange="toggleMesRec()">
+          <option value="mensal">Mensal</option>
+          <option value="unica">Única</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field" id="r-mes-wrap" style="display:none"><label>Mês</label><input type="month" id="r-mes" value="${nowStr}"></div>
+    <button class="btn-submit" onclick="submitRec()">Adicionar Receita</button>`;
+}
+
+function buildSheetGas() {
+  const nowStr = monthKey(new Date());
+  document.getElementById('sheet-title').textContent = '+ Novo Gasto Fixo';
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="form-field">
+      <label>Categoria</label>
+      <div class="type-toggle" style="flex-wrap:wrap">
+        <button class="type-chip active" data-cat="moradia" onclick="selectChip(this,'gas-cat')">🏠 Moradia</button>
+        <button class="type-chip" data-cat="alimentacao" onclick="selectChip(this,'gas-cat')">🍽 Alimentação</button>
+        <button class="type-chip" data-cat="transporte" onclick="selectChip(this,'gas-cat')">🚗 Transporte</button>
+        <button class="type-chip" data-cat="saude" onclick="selectChip(this,'gas-cat')">❤️ Saúde</button>
+        <button class="type-chip" data-cat="educacao" onclick="selectChip(this,'gas-cat')">📚 Educação</button>
+        <button class="type-chip" data-cat="servicos" onclick="selectChip(this,'gas-cat')">📱 Serviços</button>
+        <button class="type-chip" data-cat="lazer" onclick="selectChip(this,'gas-cat')">🎬 Lazer</button>
+        <button class="type-chip" data-cat="outros" onclick="selectChip(this,'gas-cat')">📋 Outros</button>
+      </div>
+      <input type="hidden" id="gas-cat" value="moradia">
+    </div>
+    <div class="form-field"><label>Descrição</label><input type="text" id="g-desc" placeholder="Ex: Aluguel, Netflix..."></div>
+    <div class="form-row-2">
+      <div class="form-field"><label>Valor (R$)</label><input type="number" id="g-valor" placeholder="0,00" inputmode="decimal"></div>
+      <div class="form-field"><label>Recorrência</label>
+        <select id="g-rec" onchange="toggleMesGas()">
+          <option value="mensal">Mensal</option>
+          <option value="unica">Única</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field" id="g-mes-wrap" style="display:none"><label>Mês</label><input type="month" id="g-mes" value="${nowStr}"></div>
+    <button class="btn-submit" onclick="submitGas()">Adicionar Gasto</button>`;
+}
+
+function buildSheetCC() {
+  document.getElementById('sheet-title').textContent = '+ Novo Cartão';
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="form-field"><label>Nome do Cartão</label><input type="text" id="cc-nome" placeholder="Ex: Nubank, Itaú Visa..."></div>
+    <div class="form-row-2">
+      <div class="form-field"><label>Fatura Mensal (R$)</label><input type="number" id="cc-fatura" placeholder="0,00" inputmode="decimal"></div>
+      <div class="form-field"><label>Vencimento (dia)</label><input type="number" id="cc-venc" placeholder="10" min="1" max="31"></div>
+    </div>
+    <button class="btn-submit" onclick="submitCC()">Adicionar Cartão</button>`;
+}
+
+function buildSheetParc() {
+  const nowStr = monthKey(new Date());
+  document.getElementById('sheet-title').textContent = '+ Nova Parcela';
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="form-field">
+      <label>Tipo</label>
+      <div class="type-toggle">
+        <button class="type-chip active" data-cat="cartao" onclick="selectChip(this,'p-tipo')">💳 Cartão</button>
+        <button class="type-chip" data-cat="financiamento" onclick="selectChip(this,'p-tipo')">🏦 Financiamento</button>
+        <button class="type-chip" data-cat="emprestimo" onclick="selectChip(this,'p-tipo')">💰 Empréstimo</button>
+        <button class="type-chip" data-cat="outros" onclick="selectChip(this,'p-tipo')">📋 Outros</button>
+      </div>
+      <input type="hidden" id="p-tipo" value="cartao">
+    </div>
+    <div class="form-field"><label>Descrição</label><input type="text" id="p-desc" placeholder="Ex: iPhone 16, Viagem..."></div>
+    <div class="form-row-2">
+      <div class="form-field"><label>Valor/Parcela (R$)</label><input type="number" id="p-valor" placeholder="0,00" inputmode="decimal"></div>
+      <div class="form-field"><label>Nº de Parcelas</label><input type="number" id="p-qtd" placeholder="12" min="1"></div>
+    </div>
+    <div class="form-field"><label>Mês de Início</label><input type="month" id="p-inicio" value="${nowStr}"></div>
+    <button class="btn-submit" onclick="submitParc()">Adicionar Parcela</button>`;
+}
+
+// Chip selector
+function selectChip(el, hiddenId) {
+  const parent = el.closest('.type-toggle');
+  parent.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(hiddenId).value = el.dataset.cat;
+}
+
+function toggleMesRec() {
+  const v = document.getElementById('r-rec').value;
+  document.getElementById('r-mes-wrap').style.display = v !== 'mensal' ? '' : 'none';
+}
+function toggleMesGas() {
+  const v = document.getElementById('g-rec').value;
+  document.getElementById('g-mes-wrap').style.display = v !== 'mensal' ? '' : 'none';
+}
+
+// ═══════════════════════════════════════════
+// SUBMIT FORMS
+// ═══════════════════════════════════════════
+function submitRec() {
+  const desc = document.getElementById('r-desc').value.trim();
+  const valor = parseFloat(document.getElementById('r-valor').value);
+  const cat = document.getElementById('rec-cat').value;
+  const rec = document.getElementById('r-rec').value;
+  const mes = document.getElementById('r-mes') ? document.getElementById('r-mes').value : '';
+  if (!desc || !valor) return toast('⚠ Preencha descrição e valor');
+  if (rec !== 'mensal' && !mes) return toast('⚠ Selecione o mês');
+  state.receitas.push({ id: uid(), desc, valor, cat, recorrencia: rec, mes });
+  save(); closeSheet(); renderScreen('rec'); renderScreen('dash'); toast('✓ Receita adicionada');
+}
+
+function submitGas() {
+  const desc = document.getElementById('g-desc').value.trim();
+  const valor = parseFloat(document.getElementById('g-valor').value);
+  const cat = document.getElementById('gas-cat').value;
+  const rec = document.getElementById('g-rec').value;
+  const mes = document.getElementById('g-mes') ? document.getElementById('g-mes').value : '';
+  if (!desc || !valor) return toast('⚠ Preencha descrição e valor');
+  if (rec !== 'mensal' && !mes) return toast('⚠ Selecione o mês');
+  state.gastos.push({ id: uid(), desc, valor, cat, recorrencia: rec, mes });
+  save(); closeSheet(); renderScreen('gas'); renderScreen('dash'); toast('✓ Gasto adicionado');
+}
+
+function submitCC() {
+  const nome = document.getElementById('cc-nome').value.trim();
+  const fatura = parseFloat(document.getElementById('cc-fatura').value);
+  const venc = document.getElementById('cc-venc').value;
+  if (!nome || !fatura) return toast('⚠ Preencha nome e fatura');
+  state.cartoes.push({ id: uid(), nome, fatura, venc });
+  save(); closeSheet(); renderScreen('gas'); renderScreen('dash'); toast('✓ Cartão adicionado');
+}
+
+function submitParc() {
+  const desc = document.getElementById('p-desc').value.trim();
+  const valor = parseFloat(document.getElementById('p-valor').value);
+  const qtd = parseInt(document.getElementById('p-qtd').value);
+  const inicio = document.getElementById('p-inicio').value;
+  const tipo = document.getElementById('p-tipo').value;
+  if (!desc || !valor || !qtd || !inicio) return toast('⚠ Preencha todos os campos');
+  state.parcelas.push({ id: uid(), desc, valor, qtd, inicio, tipo });
+  save(); closeSheet(); renderScreen('gas'); renderScreen('dash'); toast('✓ Parcela adicionada');
+}
+
+// ═══════════════════════════════════════════
+// EXPORT & CLEAR
+// ═══════════════════════════════════════════
+function exportCSV() {
+  const proj = buildProjection();
+  const rows = [['Mês','Receitas','Gastos Fixos','Cartões','Parcelas','Total Saídas','FCL'], ...proj.map(m => [m.labelFull, m.totalReceitas.toFixed(2), m.totalGastos.toFixed(2), m.totalCartoes.toFixed(2), m.totalParcelas.toFixed(2), m.totalSaidas.toFixed(2), m.fcl.toFixed(2)])];
+  const csv = rows.map(r => r.join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+  a.download = 'fluxo-caixa-24m.csv'; a.click();
+  toast('✓ CSV exportado');
+}
+
+function confirmClear() {
+  document.getElementById('sheet-title').textContent = '⚠ Limpar todos os dados?';
+  document.getElementById('sheet-body').innerHTML = `
+    <p style="color:var(--t2);font-size:14px;line-height:1.6;margin-bottom:20px">Esta ação apaga todas as receitas, gastos, cartões e parcelas cadastrados. Não pode ser desfeita.</p>
+    <button class="btn-submit" style="background:var(--red)" onclick="clearAll()">Sim, apagar tudo</button>
+    <button onclick="closeSheet()" style="width:100%;padding:14px;margin-top:10px;border-radius:14px;border:1px solid var(--border2);background:transparent;color:var(--t2);font-size:15px;cursor:pointer;font-family:var(--sans)">Cancelar</button>`;
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+}
+
+function clearAll() {
+  state = { receitas: [], gastos: [], cartoes: [], parcelas: [] };
+  save(); closeSheet(); renderDash(); toast('Dados apagados');
+}
+
+// ═══════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════
+let isLight = localStorage.getItem('fc_theme') === 'light';
+function applyTheme() {
+  document.body.classList.toggle('light', isLight);
+  document.getElementById('btn-theme').textContent = isLight ? '🌙' : '☀️';
+}
+function toggleTheme() {
+  isLight = !isLight;
+  localStorage.setItem('fc_theme', isLight ? 'light' : 'dark');
+  applyTheme();
+  toast(isLight ? '☀️ Tema claro' : '🌙 Tema escuro');
+}
+
+// ═══════════════════════════════════════════
+// HIDE VALUES TOGGLE
+// ═══════════════════════════════════════════
+let valuesHidden = localStorage.getItem('fc_hidden') === '1';
+function applyHide() {
+  document.body.classList.toggle('values-hidden', valuesHidden);
+  document.getElementById('btn-hide').textContent = valuesHidden ? '🙈' : '👁';
+}
+function toggleHide() {
+  valuesHidden = !valuesHidden;
+  localStorage.setItem('fc_hidden', valuesHidden ? '1' : '0');
+  applyHide();
+  toast(valuesHidden ? '🙈 Valores ocultos' : '👁 Valores visíveis');
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+load();
+applyTheme();
+applyHide();
+renderDash();
+</script>
+</body>
+</html>
